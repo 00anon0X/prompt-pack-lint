@@ -2,7 +2,8 @@ from prompt_pack_lint.linter import lint_text, lint_files
 
 
 def test_lint_text_detects_unresolved_placeholders_and_secret_like_values():
-    findings = lint_text("prompt.md", "Use {{API_KEY}} with sk-live-abc123456789")
+    fake_openai_style_value = "sk-" + ("x" * 8)
+    findings = lint_text("prompt.md", f"Use {{{{API_KEY}}}} with {fake_openai_style_value}")
 
     codes = {finding.code for finding in findings}
     assert "placeholder" in codes
@@ -21,7 +22,7 @@ def test_lint_files_returns_sorted_findings(tmp_path):
     a = tmp_path / "b.md"
     b = tmp_path / "a.md"
     a.write_text("TODO: fill later", encoding="utf-8")
-    b.write_text("password = secret123456", encoding="utf-8")
+    b.write_text("password = " + ("x" * 8), encoding="utf-8")
 
     findings = lint_files([a, b])
 
